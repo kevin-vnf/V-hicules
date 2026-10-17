@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BMW Série 1 – suivi de vidange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1F4;--card:#FFFFFF;--ink:#14202B;--mute:#5D6B78;--line:#D5DCE3;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A0F14;--card:#121A22;--ink:#EAF0F5;--mute:#93A2B0;--line:#243039;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0A0F14;--card:#121A22;--ink:#EAF0F5;--mute:#93A2B0;--line:#243039;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.45 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:30rem;margin:0 auto;padding:1.5rem 1.1rem 2.5rem}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{margin:0;font:700 2.5rem/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em}
+.year{margin:.3rem 0 0;color:var(--mute)}
+.car{width:7.5rem;flex:none;color:var(--ink)}
+.stripe{display:flex;height:5px;margin:1rem 0 1.25rem;border-radius:3px;overflow:hidden}
+.stripe i{flex:1}
+.cluster{background:#0A1016;color:#E9EFF4;border:1px solid #1E2A35;border-radius:20px;padding:1rem 1rem 1.1rem;box-shadow:inset 0 0 0 4px #0A1016,inset 0 0 0 5px #1A2631}
+.cluster svg text{font-family:"Barlow Condensed","Arial Narrow",sans-serif}
+.bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:.6rem;padding-top:.9rem;border-top:1px solid #1E2A35}
+.cap{margin:0 0 .3rem;font-size:.85rem;color:#8A9BA9}
+.odo{display:flex;gap:3px}
+.odo b{min-width:1.55rem;padding:.3rem .35rem;text-align:center;font:700 1.7rem/1 "Barlow Condensed","Arial Narrow",sans-serif;background:#141F29;border:1px solid #223240;border-radius:4px}
+.lamp{display:flex;align-items:center;gap:.5rem;font-weight:500;text-align:right}
+.lamp svg{width:2.4rem;flex:none}
+dl{margin:1.4rem 0 0}
+.row{display:flex;justify-content:space-between;gap:1rem;padding:.8rem 0;border-bottom:1px solid var(--line)}
+dt{color:var(--mute)}
+dd{margin:0;font-weight:500;text-align:right}
+.foot{margin:1.25rem 0 0;font-size:.9rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+// Données du véhicule : modifier ici pour mettre à jour la page
+var car={brand:'BMW',model:'Série 1',year:2010,km:136800,lastKm:134000,interval:10000,lastDate:'',updated:'17 octobre 2026'};
+
+var f=function(n){return Math.abs(n).toLocaleString('fr-FR')};
+var next=car.lastKm+car.interval, left=next-car.km;
+var used=Math.min(Math.max((car.km-car.lastKm)/car.interval,0),1);
+var s=left<=0?'bad':(left<=car.interval*0.15?'warn':'ok');
+var col={ok:'#3DDC97',warn:'#FFB020',bad:'#FF4D4F'}[s];
+var msg={ok:'Huile à jour',warn:'Vidange à prévoir',bad:'Vidange dépassée'}[s];
+var P=function(r,d){var a=d*Math.PI/180;return[(150+r*Math.cos(a)).toFixed(1),(150+r*Math.sin(a)).toFixed(1)]};
+var arc=function(r,a,b){return 'M'+P(r,180+a*180)+' A'+r+' '+r+' 0 0 1 '+P(r,180+b*180)};
+
+var g='';
+[[0,.7,'#3DDC97'],[.7,.85,'#FFB020'],[.85,1,'#FF4D4F']].forEach(function(z){
+  g+='<path d="'+arc(118,z[0],z[1])+'" fill="none" stroke="'+z[2]+'" stroke-opacity=".22" stroke-width="12"/>';
+  var e=Math.min(used,z[1]);
+  if(e>z[0])g+='<path d="'+arc(118,z[0],e)+'" fill="none" stroke="'+z[2]+'" stroke-width="12"/>';
+});
+for(var i=0;i<=10;i++){var m=i%5==0,a=P(m?92:98,180+i*18),b=P(106,180+i*18);
+  g+='<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" stroke="#5B6C7A" stroke-width="'+(m?2.5:1.5)+'"/>';}
+var n1=P(102,180+used*180),n2=P(132,180+used*180);
+g+='<line x1="'+n1[0]+'" y1="'+n1[1]+'" x2="'+n2[0]+'" y2="'+n2[1]+'" stroke="#fff" stroke-width="4" stroke-linecap="round"/>';
+g+='<text x="150" y="128" text-anchor="middle" font-size="54" font-weight="700" fill="'+col+'">'+f(left)+'</text>';
+g+='<text x="150" y="148" text-anchor="middle" font-size="14" fill="#8A9BA9">'+(left>=0?'km avant la prochaine vidange':'km de dépassement')+'</text>';
+g+='<text x="20" y="172" font-size="14" fill="#8A9BA9">'+f(car.lastKm)+' km</text>';
+g+='<text x="280" y="172" text-anchor="end" font-size="14" fill="#8A9BA9">'+f(next)+' km</text>';
+
+var odo=String(car.km).padStart(6,'0').split('').map(function(d){return '<b>'+d+'</b>'}).join('');
+var dateRow=car.lastDate?'<div class="row"><dt>Date de la dernière vidange</dt><dd>'+car.lastDate+'</dd></div>':'';
+
+document.getElementById('app').innerHTML=
+'<div class="top"><div><h1>'+car.brand+' '+car.model+'</h1><p class="year">Année '+car.year+'</p></div>'+
+'<svg class="car" viewBox="0 0 144 70" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 50V38l6-4 20-4 14-14q4-3 10-3h34q8 0 14 7l12 11 14 2 6 5v12"/><path d="M52 18l-4 12h50l-10-12z"/><circle cx="36" cy="52" r="11" fill="var(--bg)"/><circle cx="108" cy="52" r="11" fill="var(--bg)"/></svg></div>'+
+'<div class="stripe"><i style="background:#81C4FF"></i><i style="background:#0066B1"></i><i style="background:#E4002B"></i></div>'+
+'<section class="cluster"><svg viewBox="0 0 300 178" width="100%" role="img" aria-label="Jauge : '+f(left)+' km avant la prochaine vidange">'+g+'</svg>'+
+'<div class="bottom"><div><p class="cap">Kilométrage</p><div class="odo">'+odo+'</div></div>'+
+'<div class="lamp" style="color:'+col+'"><span>'+msg+'</span><svg viewBox="0 0 40 30" fill="'+col+'" aria-hidden="true"><path d="M3 10h6l3-4h11l2 4h4l8-5 3 3-7 6v10a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-3L3 18z"/><path d="M37 21c2 3 3 4 3 6a3 3 0 0 1-6 0c0-2 1-3 3-6z"/></svg></div></div></section>'+
+'<dl><div class="row"><dt>Marque</dt><dd>'+car.brand+'</dd></div>'+
+'<div class="row"><dt>Modèle</dt><dd>'+car.model+', '+car.year+'</dd></div>'+
+'<div class="row"><dt>Kilométrage actuel</dt><dd>'+f(car.km)+' km</dd></div>'+
+'<div class="row"><dt>Dernière vidange</dt><dd>à '+f(car.lastKm)+' km</dd></div>'+dateRow+
+'<div class="row"><dt>Prochaine vidange</dt><dd>à '+f(next)+' km</dd></div>'+
+'<div class="row"><dt>Intervalle</dt><dd>tous les '+f(car.interval)+' km</dd></div></dl>'+
+'<p class="foot">Kilométrage mis à jour le '+car.updated+'.</p>';
+</script>
+</body>
+</html>
